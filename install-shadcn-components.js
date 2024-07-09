@@ -7,6 +7,11 @@ const components = [
   "button",
   "card",
   "input",
+  "badge",
+  "tooltip",
+  "dropdown-menu",
+  "popover",
+  "toast",
 ];
 
 components.forEach((component) => {

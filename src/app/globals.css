@@ -85,8 +85,17 @@ body {
   margin: 0;
 }
 
+::selection {
+  color: #020817;
+  background: #ffe876;
+  /* background: #ffe770; */
+}
+
 .text-editor-container {
-  background-color: #f4f4f5;
+  background-color: #f6faff;
+  /* background-color: #f2f6fa; */
+  /* background-color: #f6faff; */
+  /* background-color: #f9fbfd; */
 }
 
 .text-editor-container .ql-editor {
@@ -94,8 +103,9 @@ body {
   min-height: 11in;
   padding: 1in;
   margin: 1rem;
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+  /* box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5); */
   background-color: white;
+  border: 1px solid hsl(var(--border));
 }
 
 .text-editor-container .ql-container.ql-snow {
@@ -108,9 +118,9 @@ body {
   display: flex;
   justify-content: center;
   position: sticky;
-  top: 0;
+  top: 60px;
   z-index: 1;
-  background-color: #f4f4f5;
+  background-color: #f6faff;
   border: none;
   /* box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5); */
   border-bottom: 1px solid hsl(var(--border));
