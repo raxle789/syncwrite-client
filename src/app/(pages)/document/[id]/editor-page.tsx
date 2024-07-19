@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TextEditor from "@/components/text-editor";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -22,9 +24,11 @@ import { TiHome } from "react-icons/ti";
 import { Link } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+import { getUserDataFromCookies } from "@/utils/authentication";
 
 const EditorPage = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const { toast } = useToast();
   const users = [
     { name: "Abdullah Al Fatih", initials: "AF" },
@@ -37,21 +41,27 @@ const EditorPage = () => {
     navigator.clipboard.writeText(url).then(
       () => {
         toast({
-          className: "bg-[#09090b] text-primary-foreground",
           description: "Link copied to clipboard!",
         });
       },
       (err) => {
         toast({
-          className: "bg-[#09090b] text-primary-foreground",
           description: `Could not copy text: , ${err}`,
         });
       }
     );
   };
+
+  useEffect(() => {
+    const user = getUserDataFromCookies();
+    if (!user) {
+      console.log("No user data found in cookies.");
+      router.replace("/");
+    }
+  }, []);
   return (
     <>
-      <header className="bg-[#f6faff] sticky top-0 z-10 flex items-center justify-between px-3 py-2">
+      <header className="bg-coolGray sticky top-0 z-10 flex items-center justify-between px-3 py-2">
         <div className="flex items-center justify-start">
           <Button
             variant="ghost"
@@ -64,7 +74,7 @@ const EditorPage = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Input
-                  className="ml-3 mr-3 bg-[#f6faff] max-w-[33%] border-0 hover:border"
+                  className="ml-3 mr-3 bg-coolGray max-w-[33%] border-0 hover:border"
                   value="Laporan PKL"
                 />
               </TooltipTrigger>

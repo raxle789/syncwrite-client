@@ -5,6 +5,7 @@ import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
 import ErrorBoundary from "@/components/error-boundary";
 import ErrorPage from "./error";
 
@@ -28,12 +29,19 @@ export default function RootLayout({
       {/* <body className={inter.className}> */}
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-coolGray font-sans antialiased",
           fontSans.variable
         )}
       >
         <ErrorBoundary fallback={<ErrorPage />}>
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
           <Toaster />
         </ErrorBoundary>
       </body>

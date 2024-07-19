@@ -12,6 +12,7 @@ const components = [
   "dropdown-menu",
   "popover",
   "toast",
+  "command",
 ];
 
 components.forEach((component) => {
