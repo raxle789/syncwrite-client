@@ -123,6 +123,31 @@ export const updateDocList = async (id?: string, list?: TDocItem[]) => {
   }
 };
 
+export const updateDocName = async (id?: string, fileName?: string) => {
+  try {
+    const response = await fetch("http://localhost:3001/api/change-filename", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        fileName: fileName,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update document name");
+    }
+
+    const data = await response.json();
+    console.log("response data: ", data);
+    return data;
+  } catch (error: any) {
+    console.log(error.message);
+  }
+};
+
 export const deleteDoc = async (id: string) => {
   try {
     const response = await fetch(`http://localhost:3001/api/delete-doc/${id}`, {

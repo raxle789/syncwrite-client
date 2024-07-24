@@ -66,6 +66,7 @@ import {
   updateProfileUser,
   getOrCreateDocList,
   updateDocList,
+  updateDocName,
   deleteDoc,
 } from "@/utils/user";
 import { v4 as uuidv4 } from "uuid";
@@ -172,6 +173,18 @@ const DocumentListPage = () => {
     }
   };
 
+  const updateDocumentName = async (id: string, fileName: string) => {
+    try {
+      const result = await updateDocName(id, fileName);
+      console.log("result: ", result);
+      toast({
+        description: "Filename has been changed",
+      });
+    } catch (error) {
+      console.error("Error document list user data: ", error);
+    }
+  };
+
   const deleteDocumentUser = async (docId: string) => {
     try {
       const result = await deleteDoc(docId);
@@ -243,10 +256,10 @@ const DocumentListPage = () => {
   //   }
   // };
 
-  const handleFileAction = (action: string) => {
-    console.log("file action: ", action);
+  const handleFileAction = (action: string, filename: string) => {
     if (action === "edit") {
       setFileAction("edit");
+      setFileName(filename);
     } else {
       setFileAction("delete");
     }
@@ -291,7 +304,15 @@ const DocumentListPage = () => {
     }
   };
 
-  const editFilename = (itemIndex: number) => {};
+  const editFilename = (itemIndex: number) => {
+    const newDocList = [...docList];
+    newDocList[itemIndex].fileName = fileName;
+    if (userData && userData.uid) {
+      updateDocListUser(userData.uid, newDocList);
+      updateDocumentName(newDocList[itemIndex].docId.toString(), fileName);
+    }
+    setIsDialogOpen(false);
+  };
 
   const deleteFile = (itemIndex: number) => {
     const selectedItem = docList.splice(itemIndex, 1);
@@ -650,14 +671,16 @@ const DocumentListPage = () => {
                     </CardHeader>
                   </Link>
                   <CardFooter className="justify-between pl-[1.2rem] pr-[0.2rem]">
-                    <div>
+                    <div className="overflow-hidden">
                       <Link
                         href={`/document/${item.docId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => openDoc(index)}
                       >
-                        <p>{item.fileName}</p>
+                        <p className="overflow-hidden whitespace-nowrap text-ellipsis">
+                          {item.fileName}
+                        </p>
                         <CardDescription>
                           Opened {formatOpenedDate(item.openedDate)}
                         </CardDescription>
@@ -679,7 +702,12 @@ const DocumentListPage = () => {
                             <DialogTrigger asChild>
                               <DropdownMenuItem
                                 className="hover:cursor-pointer"
-                                onClick={() => handleFileAction("edit")}
+                                onClick={() =>
+                                  handleFileAction(
+                                    "edit",
+                                    item.fileName.toString()
+                                  )
+                                }
                               >
                                 <FileType className="mr-2" size={16} />
                                 Edit name
@@ -688,7 +716,7 @@ const DocumentListPage = () => {
                             <DialogTrigger asChild>
                               <DropdownMenuItem
                                 className="hover:cursor-pointer"
-                                onClick={() => handleFileAction("delete")}
+                                onClick={() => handleFileAction("delete", "")}
                               >
                                 <Trash2 className="mr-2" size={16} />
                                 Delete file

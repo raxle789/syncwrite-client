@@ -3,7 +3,11 @@ import React from "react";
 import EditorPage from "./editor-page";
 
 const DocumentPage = () => {
-  return <EditorPage />;
+  return (
+    <div>
+      <EditorPage />
+    </div>
+  );
 };
 
 export default DocumentPage;
