@@ -202,13 +202,15 @@ const EditorPage = () => {
   useEffect(() => {
     if (socket == null || quill == null) return;
 
+    const user = getUserDataFromCookies();
     socket.once("load-document", (document) => {
-      const user = getUserDataFromCookies();
       // console.log(document);
       quill.setContents(document.data);
       setFileName(document.fileName);
-      // const targetUrl = `http://localhost:3000${pathname}`;
-      // takePreviewDocImage(targetUrl);
+      setTimeout(() => {
+        const targetUrl = `http://localhost:3000${pathname}`;
+        takePreviewDocImage(targetUrl);
+      }, 3000);
 
       if (user) {
         quill.enable();
@@ -216,7 +218,11 @@ const EditorPage = () => {
     });
     // const targetUrl = `http://localhost:3000${pathname}`;
     // takePreviewDocImage(targetUrl);
-    socket.emit("get-document", documentId);
+    if (user) {
+      socket.emit("get-document", user.uid, documentId);
+    } else {
+      socket.emit("get-document", "", documentId);
+    }
   }, [socket, quill, documentId]);
 
   useEffect(() => {
@@ -285,6 +291,22 @@ const EditorPage = () => {
     setQuill(q);
   }, []);
 
+  // useEffect(() => {
+  //   if (quill) {
+  //     setTimeout(() => {
+  //       const targetUrl = `http://localhost:3000${pathname}`;
+  //       if (
+  //         quill.getContents().ops.length > 1 ||
+  //         quill.getContents().ops.length === 1
+  //       ) {
+  //         takePreviewDocImage(targetUrl);
+  //       } else {
+  //         console.log("Quill has no content.");
+  //       }
+  //     }, 5000);
+  //   }
+  // }, [quill]);
+
   // Update toolbar based on signedState
   useEffect(() => {
     updateToolbar(hasSigned);
@@ -347,42 +369,56 @@ const EditorPage = () => {
         </div>
 
         <div className="flex items-center justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="rounded-full mr-3" variant="ghost" size="icon">
-                3+
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>
-                <p className="font-normal">Windy Fadilah</p>
-                <p className="font-normal">Susanti Aji</p>
-                <p className="font-normal">Agus Kuncoro</p>
-              </DropdownMenuLabel>
-            </DropdownMenuContent>
-          </DropdownMenu>
           {collaborators &&
-            collaborators.map((collaborator: TCollaborator, index: number) => (
-              <TooltipProvider key={index}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Avatar className="mr-3 hover:cursor-pointer">
-                      <AvatarImage
-                        className="object-cover"
-                        src={collaborator.avatar}
-                        alt="avatar-image"
-                      />
-                      <AvatarFallback>
-                        {getInitials(collaborator.displayName)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{collaborator.displayName}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
+            collaborators.map((collaborator: TCollaborator, index: number) =>
+              index < 3 ? (
+                <TooltipProvider key={index}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Avatar className="mr-3 hover:cursor-pointer">
+                        <AvatarImage
+                          className="object-cover"
+                          src={collaborator.avatar}
+                          alt="avatar-image"
+                        />
+                        <AvatarFallback>
+                          {getInitials(collaborator.displayName)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{collaborator.displayName}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : null
+            )}
+          {collaborators && collaborators.length > 3 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button
+                  className="rounded-full mr-3"
+                  variant="ghost"
+                  size="icon"
+                >
+                  {collaborators && collaborators.length - 3}+
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>
+                  {collaborators &&
+                    collaborators.map(
+                      (collaborator: TCollaborator, index: number) =>
+                        index > 2 ? (
+                          <p key={index} className="font-normal">
+                            {collaborator.displayName}
+                          </p>
+                        ) : null
+                    )}
+                </DropdownMenuLabel>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button>Share</Button>
