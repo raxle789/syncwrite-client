@@ -127,12 +127,6 @@ const DocumentListPage = () => {
   });
 
   // functions
-  // const sortByOpenedDate = (items: TDocItem[]): TDocItem[] => {
-  //   return items.sort(
-  //     (a, b) => b.openedDate.getTime() - a.openedDate.getTime()
-  //   );
-  // };
-
   const fetchProfileUser = async (
     id: string,
     email: string,
@@ -152,9 +146,7 @@ const DocumentListPage = () => {
       const result = await getOrCreateDocList(id);
       console.log("result: ", result);
       if (result) {
-        // const sortedList = sortByOpenedDate(result?.list);
-        // setDocList(sortedList);
-        setDocList(result?.list);
+        setDocList(result);
       }
     } catch (error) {
       console.error("Error fetching user data: ", error);
@@ -165,9 +157,7 @@ const DocumentListPage = () => {
     try {
       const result = await updateDocList(id, list);
       console.log("result: ", result);
-      // const sortedList = sortByOpenedDate(result.list);
-      // setDocList(sortedList);
-      setDocList(result.list);
+      setDocList(result);
     } catch (error) {
       console.error("Error document list user data: ", error);
     }
@@ -204,14 +194,6 @@ const DocumentListPage = () => {
     setEditState(!editState);
   };
 
-  const handleCommandItemClick = (
-    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    setIsCommandOpen(false);
-    console.log("Link clicked:", e.currentTarget.href);
-  };
-
   const formatOpenedDate = (itemDate: Date | string): string => {
     let date;
     if (typeof itemDate === "string") {
@@ -232,29 +214,6 @@ const DocumentListPage = () => {
     }
     return "Invalid date";
   };
-
-  // const takeScreenshot = async () => {
-  //   try {
-  //     const response = await fetch("/api/take-screenshot", {
-  //       method: "POST",
-  //     });
-  //     const data = await response.json();
-  //     console.log("Screenshot taken, title:", data.title);
-  //   } catch (error) {
-  //     console.error("Error taking screenshot:", error);
-  //   }
-  // };
-  // const takeScreenshot = async () => {
-  //   try {
-  //     const response = await fetch("/api/take-screenshot", {
-  //       method: "POST",
-  //     });
-  //     const data = await response.json();
-  //     console.log("Screenshot taken, title:", data.title);
-  //   } catch (error) {
-  //     console.error("Error taking screenshot:", error);
-  //   }
-  // };
 
   const handleFileAction = (action: string, filename: string) => {
     if (action === "edit") {
@@ -296,6 +255,7 @@ const DocumentListPage = () => {
       openedDate: timestamp,
     };
     const newDocList = [newDocItem, ...docList];
+    console.log("newDocList: ", newDocList);
 
     const targetUrl = `/document/${newId}`;
     window.open(targetUrl, "_blank");
@@ -325,11 +285,23 @@ const DocumentListPage = () => {
     setIsDialogOpen(false);
   };
 
+  const handleCommandItemClick = (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    docIndex: number
+  ) => {
+    e.preventDefault();
+    setIsCommandOpen(false);
+    console.log("Link clicked:", e.currentTarget.href);
+    const targetUrl = e.currentTarget.href;
+    window.open(targetUrl, "_blank");
+    openDoc(docIndex);
+  };
+
   const getInitials = (fullName: string) => {
     const nameParts = fullName.split(" ");
     if (nameParts.length < 2) return "SW";
     const initials = nameParts[0].charAt(0) + nameParts[1].charAt(0);
-    setInitial(initials);
+    setInitial(initials.toUpperCase());
   };
 
   const handleAvatarChange = (
@@ -401,12 +373,6 @@ const DocumentListPage = () => {
   }, []);
 
   useEffect(() => {
-    // takeScreenshot();
-    // SSHandler();
-    console.log("ss diambil");
-  }, []);
-
-  useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
@@ -464,18 +430,18 @@ const DocumentListPage = () => {
     }
   }, [userData, form]);
 
-  useEffect(() => {
-    console.log("userData: ", userData);
-  }, [userData]);
+  // useEffect(() => {
+  //   console.log("userData: ", userData);
+  // }, [userData]);
   // useEffect(() => {
   //   console.log("avatar: ", avatar);
   // }, [avatar]);
   useEffect(() => {
     console.log("isDialogOpen: ", isDialogOpen);
   }, [isDialogOpen]);
-  // useEffect(() => {
-  //   console.log("docList: ", docList);
-  // }, [docList]);
+  useEffect(() => {
+    console.log("docList: ", docList);
+  }, [docList]);
   return (
     <>
       <header className="flex items-center justify-between sticky top-0 z-10 px-6 py-2 bg-background border-b border-solid border-border">
@@ -784,29 +750,22 @@ const DocumentListPage = () => {
         <CommandInput placeholder="Type file name..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            <Link
-              className="hover:cursor-pointer"
-              href="#"
-              onClick={(e) => handleCommandItemClick(e)}
-            >
-              <CommandItem>Calendar</CommandItem>
-            </Link>
-            <Link
-              className="hover:cursor-pointer"
-              href="#"
-              onClick={(e) => handleCommandItemClick(e)}
-            >
-              <CommandItem>Search Emoji</CommandItem>
-            </Link>
-            <Link
-              className="hover:cursor-pointer"
-              href="#"
-              onClick={(e) => handleCommandItemClick(e)}
-            >
-              <CommandItem>Calculator</CommandItem>
-            </Link>
-          </CommandGroup>
+          {docList && (
+            <CommandGroup heading="Suggestions">
+              {docList.map((item: TDocItem, index: number) => (
+                <Link
+                  key={index}
+                  className="hover:cursor-pointer"
+                  href={`/document/${item.docId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => handleCommandItemClick(e, index)}
+                >
+                  <CommandItem>{item.fileName}</CommandItem>
+                </Link>
+              ))}
+            </CommandGroup>
+          )}
         </CommandList>
       </CommandDialog>
     </>

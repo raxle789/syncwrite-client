@@ -130,7 +130,7 @@ const EditorPage = () => {
     const nameParts = fullName.split(" ");
     if (nameParts.length < 2) return "SW";
     const initials = nameParts[0].charAt(0) + nameParts[1].charAt(0);
-    return initials;
+    return initials.toUpperCase();
   };
 
   const handleFilenameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,10 +207,10 @@ const EditorPage = () => {
       // console.log(document);
       quill.setContents(document.data);
       setFileName(document.fileName);
-      setTimeout(() => {
-        const targetUrl = `http://localhost:3000${pathname}`;
-        takePreviewDocImage(targetUrl);
-      }, 3000);
+      // setTimeout(() => {
+      //   const targetUrl = `http://localhost:3000${pathname}`;
+      //   takePreviewDocImage(targetUrl);
+      // }, 3000);
 
       if (user) {
         quill.enable();
@@ -335,25 +335,7 @@ const EditorPage = () => {
           >
             <TiHome style={{ fontSize: "1.75rem" }} />
           </Button>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                {/* <Input
-                  className="ml-3 mr-3 bg-coolGray max-w-[33%] border-0 hover:border disabled:opacity-100"
-                  placeholder="File Name"
-                  onChange={handleFilenameChange}
-                  value={fileName}
-                  disabled
-                /> */}
-                <p className="ml-3 mr-3">{fileName}</p>
-              </TooltipTrigger>
-              {hasSigned && (
-                <TooltipContent>
-                  <p>Edit name</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
+          <p className="ml-3 mr-3">{fileName}</p>
           {hasSigned && <Badge>{saveState ? "Saved" : "Not saved"}</Badge>}
           {!hasSigned && <Badge>Read only</Badge>}
           {hasSigned && (
