@@ -36,8 +36,6 @@ import {
 } from "@/components/ui/card";
 import {
   DropdownMenu,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -52,7 +50,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/theme-toggle";
+// import { ModeToggle } from "@/components/theme-toggle";
 import { Plus } from "lucide-react";
 import { EllipsisVertical } from "lucide-react";
 import { FileType } from "lucide-react";
@@ -107,7 +105,6 @@ type TDocItem = {
 const DocumentListPage = () => {
   // state
   const router = useRouter();
-  const [windowWidth, setWindowWidth] = useState(0);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editState, setEditState] = useState(false);
@@ -373,18 +370,6 @@ const DocumentListPage = () => {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
     const user = getUserDataFromCookies();
     if (user) {
       // const { uid, email, displayName } = user;
@@ -448,13 +433,14 @@ const DocumentListPage = () => {
         <div className="flex items-center justify-start">
           <Link className="mr-3" href="/my-documents">
             <Image
+              className="w-8 h-auto xl:w-[40px]"
               src={SyncWriteLogo}
               alt="sync-write-logo"
-              style={{ width: "40px", height: "auto" }}
+              // style={{ width: "40px", height: "auto" }}
             />
           </Link>
           <Link href="/my-documents">
-            <h1 className="text-2xl font-bold">SyncWrite</h1>
+            <h1 className="text-xl xl:text-2xl font-bold">SyncWrite</h1>
           </Link>
         </div>
 
@@ -463,17 +449,19 @@ const DocumentListPage = () => {
             className="mr-3 inline-flex items-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible: ring-I focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-accent hover: px-4 py-2 relative h-8 w-full justify-start rounded-[0.5rem] be-muted/ 50 text-sm font-normal text-muted-foreground shadow-none lg:w-64"
             onClick={handleOpenSearch}
           >
-            <span className="hidden lg:inline-flex">Search Documents...</span>
-            <span className="inline-flex lg:hidden">Search...</span>
-            <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+            <span className="hidden md:inline-flex lg:inline-flex">
+              Search Documents...
+            </span>
+            <span className="inline-flex md:hidden lg:hidden">Search...</span>
+            <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:hidden lg:flex">
               CTRL + K
             </kbd>
           </button>
-          {windowWidth >= 650 && (
+          {/* {windowWidth >= 650 && (
             <div className="mr-3">
               <ModeToggle />
             </div>
-          )}
+          )} */}
           <Dialog>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -487,14 +475,14 @@ const DocumentListPage = () => {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {windowWidth < 650 && (
+                {/* {windowWidth < 650 && (
                   <>
                     <DropdownMenuLabel>
                       <ModeToggle />
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                   </>
-                )}
+                )} */}
                 <DialogTrigger asChild>
                   <DropdownMenuItem className="hover:cursor-pointer">
                     My profile
@@ -509,13 +497,13 @@ const DocumentListPage = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <DialogContent>
+            <DialogContent className="rounded-lg w-[90%]">
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-6"
                 >
-                  <DialogHeader>
+                  <DialogHeader className="text-left">
                     <DialogTitle>My Profile</DialogTitle>
                     <DialogDescription>
                       <div className="my-2 flex justify-end">
@@ -607,8 +595,8 @@ const DocumentListPage = () => {
         </div>
       </header>
 
-      <section className="px-20 pt-4">
-        <div className="h-[260px] flex items-center justify-center container-bg object-right-bottom object-cover rounded-xl mb-4"></div>
+      <section className="px-8 md:px-20 pt-4">
+        <div className="h-[260px] flex items-center justify-center container-bg object-right-bottom object-cover bg-no-repeat rounded-xl mb-4"></div>
         <div className="flex items-center justify-between mb-4">
           <p>Newest documents</p>
           <Button
@@ -620,7 +608,7 @@ const DocumentListPage = () => {
             <Plus />
           </Button>
         </div>
-        <div className="h-full grid grid-cols-5 gap-5">
+        <div className="h-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 px-12 md:px-0">
           {docList &&
             docList.map((item: TDocItem, index) => (
               <div key={index} className="h-[16rem]">
@@ -636,7 +624,7 @@ const DocumentListPage = () => {
                       <CardTitle>Preview doc</CardTitle>
                     </CardHeader>
                   </Link>
-                  <CardFooter className="justify-between pl-[1.2rem] pr-[0.2rem]">
+                  <CardFooter className="justify-between md:pl-4 lg:pl-[1.2rem] pr-[0.2rem]">
                     <div className="overflow-hidden">
                       <Link
                         href={`/document/${item.docId}`}
@@ -692,8 +680,8 @@ const DocumentListPage = () => {
                         </DropdownMenu>
 
                         {isDialogOpen && fileAction === "edit" && (
-                          <DialogContent>
-                            <DialogHeader>
+                          <DialogContent className="rounded-lg w-[90%]">
+                            <DialogHeader className="text-left">
                               <DialogTitle>Edit File Name</DialogTitle>
                               <DialogDescription>
                                 <Input
@@ -716,8 +704,8 @@ const DocumentListPage = () => {
                         )}
 
                         {isDialogOpen && fileAction === "delete" && (
-                          <DialogContent>
-                            <DialogHeader>
+                          <DialogContent className="rounded-lg w-[90%]">
+                            <DialogHeader className="text-left">
                               <DialogTitle>
                                 Are you absolutely sure?
                               </DialogTitle>

@@ -167,6 +167,7 @@ body {
 }
 
 .text-editor-container .ql-toolbar.ql-snow {
+  width: 100%;
   display: flex;
   justify-content: center;
   position: sticky;
@@ -180,6 +181,10 @@ body {
 
 .container-bg {
   background-image: url("../../public/assets/background-my-document.jpg");
+}
+
+.name-container::-webkit-scrollbar {
+  display: none;
 }
 
 @page {
@@ -202,6 +207,15 @@ body {
 
   .text-editor-container .ql-toolbar.ql-snow {
     display: none;
+  }
+}
+
+@media (min-width: 300px) and (max-width: 849px) {
+  .text-editor-container {
+    overflow-x: auto;
+  }
+  .ql-container {
+    width: 8.5in;
   }
 }
 

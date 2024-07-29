@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -20,8 +20,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { TiHome } from "react-icons/ti";
 import { Link } from "lucide-react";
+import { SatelliteDish } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { getUserDataFromCookies } from "@/utils/authentication";
@@ -59,7 +68,6 @@ type TCollaborator = {
 
 const EditorPage = () => {
   // states
-  // const { id: documentId } = useParams();
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -71,12 +79,9 @@ const EditorPage = () => {
   const [collaborators, setCollaborators] = useState<TCollaborator[]>([]);
   const [hasSigned, setHasSigned] = useState(false);
   const [fileName, setFileName] = useState("");
-  const usersNow = [
-    { name: "Abdullah Al Fatih", initials: "AF" },
-    { name: "Abdullah Al Fatih", initials: "AF" },
-    { name: "Abdullah Al Fatih", initials: "AF" },
-  ];
+  const [windowWidth, setWindowWidth] = useState(0);
 
+  // functions
   const handleCopyLink = () => {
     const url = window.location.origin + pathname;
     navigator.clipboard.writeText(url).then(
@@ -93,7 +98,6 @@ const EditorPage = () => {
     );
   };
 
-  // functions
   const takePreviewDocImage = async (url: string) => {
     try {
       const result = await takePreviewDoc(url);
@@ -116,7 +120,7 @@ const EditorPage = () => {
   function updateToolbar(signedState: boolean) {
     if (quill) {
       const toolbarModule = quill.getModule("toolbar");
-      if (signedState) {
+      if (signedState && windowWidth > 900) {
         toolbarModule.options = TOOLBAR_OPTIONS;
         toolbarModule.container.style.display = ""; // Show toolbar
       } else {
@@ -133,30 +137,28 @@ const EditorPage = () => {
     return initials.toUpperCase();
   };
 
-  const handleFilenameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFileName(event.target.value);
-  };
-
   // useEffect
   useEffect(() => {
     const s: Socket = io("http://localhost:3001");
     const user = getUserDataFromCookies();
     if (user) {
       s.emit("join", user.uid, documentId);
+    } else {
+      s.emit("join", "anonim", documentId);
     }
 
     s.on("users", (users) => {
-      console.log("Users: ", users);
+      // console.log("Users: ", users);
       setUsers(users);
     });
 
     s.on("user-joined", (user) => {
-      console.log("User joined: ", user);
+      // console.log("User joined: ", user);
       setUsers((prevUsers: any) => [...prevUsers, user]);
     });
 
     s.on("user-left", (socketId) => {
-      console.log("User left: ", socketId);
+      // console.log("User left: ", socketId);
       setUsers((prevUsers: any) =>
         prevUsers.filter((user: any) => user.socketId !== socketId)
       );
@@ -212,8 +214,10 @@ const EditorPage = () => {
       //   takePreviewDocImage(targetUrl);
       // }, 3000);
 
-      if (user) {
+      if (user && windowWidth > 900) {
         quill.enable();
+      } else {
+        quill.disable();
       }
     });
     // const targetUrl = `http://localhost:3000${pathname}`;
@@ -221,7 +225,7 @@ const EditorPage = () => {
     if (user) {
       socket.emit("get-document", user.uid, documentId);
     } else {
-      socket.emit("get-document", "", documentId);
+      socket.emit("get-document", "anonim", documentId);
     }
   }, [socket, quill, documentId]);
 
@@ -310,7 +314,27 @@ const EditorPage = () => {
   // Update toolbar based on signedState
   useEffect(() => {
     updateToolbar(hasSigned);
-  }, [hasSigned, quill]);
+    const user = getUserDataFromCookies();
+    if (quill) {
+      if (user && windowWidth > 900) {
+        quill.enable();
+      } else {
+        quill.disable();
+      }
+    }
+  }, [hasSigned, quill, windowWidth]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const user = getUserDataFromCookies();
@@ -332,20 +356,22 @@ const EditorPage = () => {
             variant="ghost"
             className="px-[0.7rem] py-[0.6rem] rounded-full w-11 h-11"
             size="icon"
+            onClick={() => router.replace("/my-documents")}
           >
             <TiHome style={{ fontSize: "1.75rem" }} />
           </Button>
-          <p className="ml-3 mr-3">{fileName}</p>
-          {hasSigned && <Badge>{saveState ? "Saved" : "Not saved"}</Badge>}
-          {!hasSigned && <Badge>Read only</Badge>}
-          {hasSigned && (
+          <p className="name-container ml-3 mr-3 max-w-[150px] md:max-w-[250px] whitespace-nowrap overflow-x-auto">
+            {fileName}
+          </p>
+          {hasSigned && windowWidth >= 900 && (
+            <Badge>{saveState ? "Saved" : "Not saved"}</Badge>
+          )}
+          {(!hasSigned || (windowWidth >= 460 && windowWidth < 900)) && (
+            <Badge>Read only</Badge>
+          )}
+          {hasSigned && windowWidth >= 900 && (
             <span className="text-xs ml-3">
               Any changes will save every 2 seconds
-            </span>
-          )}
-          {!hasSigned && (
-            <span className="text-xs ml-3">
-              Log in and use laptop to start collaborate
             </span>
           )}
         </div>
@@ -357,7 +383,7 @@ const EditorPage = () => {
                 <TooltipProvider key={index}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Avatar className="mr-3 hover:cursor-pointer">
+                      <Avatar className="mr-3 hover:cursor-pointer hidden sm:block">
                         <AvatarImage
                           className="object-cover"
                           src={collaborator.avatar}
@@ -379,7 +405,7 @@ const EditorPage = () => {
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Button
-                  className="rounded-full mr-3"
+                  className="rounded-full mr-3 hidden sm:block"
                   variant="ghost"
                   size="icon"
                 >
@@ -401,26 +427,70 @@ const EditorPage = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button>Share</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Anyone can edit</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="hover:cursor-pointer"
-                onClick={handleCopyLink}
-              >
-                <Link className="mr-2" size={14} />
-                Copy link
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Dialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button>{windowWidth < 640 ? "Others" : "Share"}</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {windowWidth < 460 && (
+                  <DropdownMenuLabel>
+                    <Badge>Read only</Badge>
+                  </DropdownMenuLabel>
+                )}
+                {windowWidth >= 460 && (
+                  <DropdownMenuLabel>Anyone can edit</DropdownMenuLabel>
+                )}
+                <DropdownMenuSeparator />
+                {windowWidth < 640 && (
+                  <DialogTrigger className="w-full">
+                    <DropdownMenuItem className="hover:cursor-pointer">
+                      <SatelliteDish className="mr-2" size={16} />
+                      View online
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                )}
+                <DropdownMenuItem
+                  className="hover:cursor-pointer"
+                  onClick={handleCopyLink}
+                >
+                  <Link className="mr-2" size={14} />
+                  Copy link
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DialogContent className="rounded-lg w-[90%]">
+              <DialogHeader className="text-left">
+                <DialogTitle>Online users</DialogTitle>
+                <DialogDescription className="pt-4">
+                  {collaborators &&
+                    collaborators.map(
+                      (collaborator: TCollaborator, index: number) => (
+                        <div key={index} className="flex items-center mb-3">
+                          <Avatar className="mr-5">
+                            <AvatarImage
+                              className="object-cover"
+                              src={collaborator.avatar}
+                              alt="avatar-image"
+                            />
+                            <AvatarFallback>
+                              {getInitials(collaborator.displayName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <p className="text-base">
+                            {collaborator.displayName}
+                          </p>
+                        </div>
+                      )
+                    )}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
-      {/* hai */}
-      {/* <TextEditor signedState={hasSigned} /> */}
+
       <div className="text-editor-container" ref={wrapperRef}></div>
     </div>
   );
