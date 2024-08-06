@@ -101,7 +101,7 @@ export default function HomePage() {
     }
   }, []);
   return (
-    <main className="min-h-dvh flex flex-wrap items-center justify-around bg-coolGray">
+    <main className="home-container min-h-dvh flex flex-wrap items-center justify-around bg-coolGray">
       <div>
         <h1 className="font-bold text-center text-5xl mb-3">SyncWrite</h1>
         <p className="text-center text-lg">Collaboration Docs Workspace</p>
@@ -127,7 +127,7 @@ export default function HomePage() {
             </Button>
           </CardContent>
           <CardFooter className="flex-col">
-            <p className="text-sm mb-2">Don't have an account?</p>
+            <p className="text-sm mb-2">Don&apos;t have an account?</p>
             <Button className="min-w-full justify-start" onClick={handleSignIn}>
               <Image
                 className="mr-3"
