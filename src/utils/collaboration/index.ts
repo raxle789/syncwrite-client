@@ -7,6 +7,7 @@ export const getCollaborators = async (list: TCollaborators[]) => {
     const response = await fetch(
       "https://syncwrite-server.vercel.app/api/get-users-now",
       {
+        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
