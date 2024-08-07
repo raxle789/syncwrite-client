@@ -4,11 +4,11 @@ export const getOrCreateUser = async (
   displayName?: string | null,
   avatar?: string | null
 ) => {
+  console.log("fetch get-create-user (id): ", uid);
   try {
     const response = await fetch(
       "https://syncwrite-server.vercel.app/api/get-or-create-user",
       {
-        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,7 +44,6 @@ export const updateProfileUser = async (
     const response = await fetch(
       "https://syncwrite-server.vercel.app/api/update-profile",
       {
-        mode: "no-cors",
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +74,6 @@ export const getOrCreateDocList = async (uid?: string) => {
     const response = await fetch(
       "https://syncwrite-server.vercel.app/api/get-or-create-doclist",
       {
-        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +107,6 @@ export const updateDocList = async (id?: string, list?: TDocItem[]) => {
     const response = await fetch(
       "https://syncwrite-server.vercel.app/api/update-doclist",
       {
-        mode: "no-cors",
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +135,6 @@ export const updateDocName = async (id?: string, fileName?: string) => {
     const response = await fetch(
       "https://syncwrite-server.vercel.app/api/change-filename",
       {
-        mode: "no-cors",
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +163,6 @@ export const deleteDoc = async (id: string) => {
     const response = await fetch(
       `https://syncwrite-server.vercel.app/api/delete-doc/${id}`,
       {
-        mode: "no-cors",
         method: "DELETE",
         headers: {},
       }

@@ -371,6 +371,7 @@ const DocumentListPage = () => {
 
   useEffect(() => {
     const user = getUserDataFromCookies();
+    console.log("useEffect-user: ", user);
     if (user) {
       // const { uid, email, displayName } = user;
       const fetchUserData = async () => {
