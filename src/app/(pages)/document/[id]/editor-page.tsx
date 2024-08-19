@@ -139,7 +139,7 @@ const EditorPage = () => {
 
   // useEffect
   useEffect(() => {
-    const s: Socket = io("http://syncwrite-server.vercel.app");
+    const s: Socket = io("syncwrite-server.vercel.app");
     // const socket = io("https://your-server-domain.com", {
     //   transports: ["websocket"],
     //   withCredentials: true,
