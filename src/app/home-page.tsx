@@ -10,10 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-// import google-logo from '../../public/assets/logo/Google__Logo.svg';
 import Image from "next/image";
-import { PopupSignIn, RedirectSignIn } from "@/utils/firebase/firebase.util";
-import { getAuth, getRedirectResult } from "firebase/auth";
+import {
+  PopupSignIn,
+  RedirectSignIn,
+  auth,
+} from "@/utils/firebase/firebase.util";
+import { getRedirectResult, getAuth, onAuthStateChanged } from "firebase/auth";
 import Cookies from "js-cookie";
 import { getUserDataFromCookies } from "@/utils/authentication";
 
@@ -25,24 +28,8 @@ type TUserData = {
 
 export default function HomePage() {
   const router = useRouter();
-  // const [userData, setUserData] = useState<TUserData>({});
   const handleSignIn = async () => {
     try {
-      // await RedirectSignIn();
-      // const auth = getAuth();
-      // getRedirectResult(auth)
-      //   .then((result) => {
-      //     if (result) {
-      //       const user = result.user;
-      //       console.log("User info: ", user);
-      //       // Lakukan sesuatu dengan informasi pengguna, misalnya menyimpan dalam state atau context
-      //       router.push("/my-documents");
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error during sign-in: ", error);
-      //   });
-
       const result = await PopupSignIn();
       if (result) {
         const data = result.user;
@@ -65,13 +52,35 @@ export default function HomePage() {
     }
   };
 
-  // const handleSignIn = async () => {
-  //   try {
-  //     await RedirectSignIn();
-  //   } catch (error) {
-  //     console.log("Error sign in: ", error);
-  //   }
-  // };
+  const handleSignInRedirect = async () => {
+    console.log("handle redirect");
+    try {
+      await RedirectSignIn();
+      console.log("redirect");
+      const auth = getAuth();
+      console.log("auth sudah");
+      const response = await getRedirectResult(auth);
+      console.log(response);
+      if (response) {
+        const data = response.user;
+        const userSigned: TUserData = {
+          uid: data.uid,
+          email: data.email,
+          displayName: data.displayName,
+        };
+        // setUserData(userSigned);
+        console.log("data: ", data);
+        // Simpan data pengguna ke dalam cookie
+        Cookies.set("syncwrite-userData", JSON.stringify(userSigned), {
+          expires: 3,
+        }); // Cookie disimpan selama 3 hari
+        console.log("cookies created");
+        router.push("/my-documents");
+      }
+    } catch (error) {
+      console.log("Error sign in: ", error);
+    }
+  };
 
   // useEffect(() => {
   //   const fetchSignInResult = async () => {
@@ -91,6 +100,80 @@ export default function HomePage() {
   //   };
   //   fetchSignInResult();
   // }, [router]);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const auth = getAuth();
+  //       console.log("auth sudah");
+  //       // const response = await getRedirectResult(auth);
+  //       // console.log(response);
+  //       getRedirectResult(auth)
+  //         .then((result) => {
+  //           if (result) {
+  //             const user = result.user;
+  //             console.log("User info: ", user);
+  //             // Lakukan sesuatu dengan informasi pengguna, misalnya menyimpan dalam state atau context
+  //             // router.push("/my-documents");
+  //           }
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error during sign-in: ", error);
+  //         });
+  //       // if (response) {
+  //       //   const data = response.user;
+  //       //   const userSigned: TUserData = {
+  //       //     uid: data.uid,
+  //       //     email: data.email,
+  //       //     displayName: data.displayName,
+  //       //   };
+  //       //   // setUserData(userSigned);
+  //       //   console.log("data: ", data);
+  //       //   // Simpan data pengguna ke dalam cookie
+  //       //   Cookies.set("syncwrite-userData", JSON.stringify(userSigned), {
+  //       //     expires: 3,
+  //       //   }); // Cookie disimpan selama 3 hari
+  //       //   console.log("cookies created");
+  //       //   router.push("/my-documents");
+  //       // }
+  //     } catch (error) {
+  //       console.error("Error during sign-in: ", error);
+  //     }
+  //   };
+
+  //   console.log("masuk use Effect redirect");
+  //   fetchData();
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log("masuk unsubsribe");
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       // User is signed in
+  //       const userSigned = {
+  //         uid: user.uid,
+  //         email: user.email,
+  //         displayName: user.displayName,
+  //       };
+
+  //       console.log("User signed in: ", userSigned);
+
+  //       // Simpan data pengguna ke dalam cookie
+  //       Cookies.set("syncwrite-userData", JSON.stringify(userSigned), {
+  //         expires: 3,
+  //       });
+
+  //       console.log("Cookies created.");
+  //       router.push("/my-documents");
+  //     } else {
+  //       // User is signed out
+  //       console.log("No user signed in.");
+  //     }
+  //   });
+
+  //   // Clean up subscription on unmount
+  //   return () => unsubscribe();
+  // }, []);
 
   useEffect(() => {
     const user = getUserDataFromCookies();

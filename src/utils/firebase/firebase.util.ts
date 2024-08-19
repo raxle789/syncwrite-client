@@ -6,14 +6,6 @@ import {
   GoogleAuthProvider,
   signOut,
 } from "firebase/auth";
-// import {
-//   getFirestore,
-//   doc,
-//   getDoc,
-//   setDoc,
-//   deleteDoc,
-//   collection,
-// } from "firebase/firestore";
 import "firebase/compat/firestore";
 
 // Your web app's Firebase configuration
