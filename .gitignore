@@ -39,3 +39,5 @@ next-env.d.ts
 #more gitignore
 install-shadcn-components.js
 konfigurasi-firebase.txt
+socket-server.ts
+socket-util.ts

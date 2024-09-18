@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+// import { Image } from "next/image";
 import {
   Card,
   CardContent,
@@ -10,11 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+// import cover from "../../public/assets/text-cover.jpg";
 import Image from "next/image";
 import {
   PopupSignIn,
   RedirectSignIn,
-  auth,
+  // auth,
 } from "@/utils/firebase/firebase.util";
 import { getRedirectResult, getAuth, onAuthStateChanged } from "firebase/auth";
 import Cookies from "js-cookie";
@@ -28,6 +30,8 @@ type TUserData = {
 
 export default function HomePage() {
   const router = useRouter();
+
+  // Functions
   const handleSignIn = async () => {
     try {
       const result = await PopupSignIn();
@@ -175,6 +179,7 @@ export default function HomePage() {
   //   return () => unsubscribe();
   // }, []);
 
+  // Handle decision if the user is loged or not
   useEffect(() => {
     const user = getUserDataFromCookies();
     if (user) {
@@ -185,12 +190,21 @@ export default function HomePage() {
   }, []);
   return (
     <main className="home-container min-h-dvh flex flex-wrap items-center justify-around bg-coolGray">
-      <div>
-        <h1 className="font-bold text-center text-5xl mb-3">SyncWrite</h1>
+      <div className="vertical-text fixed left-0 top-1/2 transform -translate-y-1/2 text-xs italic z-10">
+        Dans le jardin secret, les roses murmurent des rêves doux au vent.
+      </div>
+      {/* <div className="fixed left-0 top-0 h-screen w-[40%] bg-zinc-50">
+        <Image className="object-cover" src={cover} alt="cover" />
+      </div> */}
+
+      <div className="z-10">
+        <h1 className="font-bold text-center text-5xl mb-3">
+          <span className="font-bold text-blue-500">/ </span>SyncWrite
+        </h1>
         <p className="text-center text-lg">Collaboration Docs Workspace</p>
       </div>
-      <div className="p-3">
-        <Card>
+      <div className="p-3 z-10">
+        <Card className="border-none shadow-2xl">
           <CardHeader>
             <CardTitle>Log in</CardTitle>
             <CardDescription>
@@ -224,58 +238,33 @@ export default function HomePage() {
           </CardFooter>
         </Card>
       </div>
-      {/* <div className="relative isolate px-6 pt-14 lg:px-8">
-        <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
-          <div
-            style={{
-              clipPath:
-                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-            }}
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-          />
-        </div>
-        <div className="min-h-dvh flex flex-wrap items-center justify-around">
-          <div>
-            <h1 className="font-bold text-center text-5xl mb-3">SyncWrite</h1>
-            <p className="text-center text-lg">Collaboration Docs Workspace</p>
-          </div>
-          <div className="p-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Log in</CardTitle>
-                <CardDescription>
-                  Start collaborate with log in or sign up
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button className="min-w-full justify-start">
-                  <Image
-                    className="mr-3"
-                    src="/assets/logo/Google__Logo.svg"
-                    alt="Google Logo"
-                    width={21}
-                    height={21}
-                  />
-                  Log in with Google
-                </Button>
-              </CardContent>
-              <CardFooter className="flex-col">
-                <p className="text-sm mb-2">Don't have an account?</p>
-                <Button className="min-w-full justify-start">
-                  <Image
-                    className="mr-3"
-                    src="/assets/logo/Google__Logo.svg"
-                    alt="Google Logo"
-                    width={21}
-                    height={21}
-                  />
-                  Sign up with Google
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
+
+      {/* <div className="relative">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam,
+          mollitia incidunt. Ratione ea laudantium consectetur eligendi, ad quas
+          cupiditate veniam?
+        </p>
       </div> */}
+      <div className="absolute w-full h-[15%] bottom-0 left-0 p-4 z-10">
+        <div className="w-full h-full bg-background rounded-2xl shadow-2xl flex items-center justify-center">
+          {/* <div className="flex items-center justify-center"> */}
+          <div className="w-full flex items-center">
+            <div className="flex items-center w-1/2">
+              <h3 className="font-bold text-2xl px-12">Create</h3>
+              <h3 className="font-bold text-2xl px-12">Sync</h3>
+              <h3 className="font-bold text-2xl px-12">Collaborate</h3>
+            </div>
+            <div>
+              <p className="font-semibold text-lg italic">
+                Sous la lune brillante, le silence danse avec les étoiles
+                éternelles du ciel.
+              </p>
+            </div>
+          </div>
+          {/* </div> */}
+        </div>
+      </div>
     </main>
   );
 }

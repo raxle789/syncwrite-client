@@ -124,6 +124,7 @@ const DocumentListPage = () => {
   });
 
   // functions
+  // Fetch user profile
   const fetchProfileUser = async (
     id: string,
     email: string,
@@ -138,6 +139,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Server action for getting document list
   const fetchGetDocList = async (id: string) => {
     try {
       const result = await getOrCreateDocList(id);
@@ -150,6 +152,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Server action for updating document list if user open collaborated document or create new document
   const updateDocListUser = async (id: string, list: TDocItem[]) => {
     try {
       const result = await updateDocList(id, list);
@@ -160,6 +163,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Server action for updating document name
   const updateDocumentName = async (id: string, fileName: string) => {
     try {
       const result = await updateDocName(id, fileName);
@@ -172,6 +176,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Server action for deleting document
   const deleteDocumentUser = async (docId: string) => {
     try {
       const result = await deleteDoc(docId);
@@ -191,6 +196,7 @@ const DocumentListPage = () => {
     setEditState(!editState);
   };
 
+  // Function for date formatting
   const formatOpenedDate = (itemDate: Date | string): string => {
     let date;
     if (typeof itemDate === "string") {
@@ -212,6 +218,7 @@ const DocumentListPage = () => {
     return "Invalid date";
   };
 
+  // Function for handle decision whether user want to update document name or delete document
   const handleFileAction = (action: string, filename: string) => {
     if (action === "edit") {
       setFileAction("edit");
@@ -230,6 +237,7 @@ const DocumentListPage = () => {
     setFullname(event.target.value);
   };
 
+  // Function for tidy up document list if user open the document
   const openDoc = (itemIndex: number) => {
     const selectedItem = docList.splice(itemIndex, 1);
     const timestamp = new Date();
@@ -242,6 +250,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Function for tidy up document list if user create new document
   const createNewDoc = () => {
     const newId = uuidv4();
     const timestamp = new Date();
@@ -261,6 +270,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Update document list's user and document name
   const editFilename = (itemIndex: number) => {
     const newDocList = [...docList];
     newDocList[itemIndex].fileName = fileName;
@@ -271,6 +281,7 @@ const DocumentListPage = () => {
     setIsDialogOpen(false);
   };
 
+  // Update document list's user and delete document on database
   const deleteFile = (itemIndex: number) => {
     const selectedItem = docList.splice(itemIndex, 1);
     const newDocList = [...docList];
@@ -282,6 +293,7 @@ const DocumentListPage = () => {
     setIsDialogOpen(false);
   };
 
+  // Function to handle search item clicking
   const handleCommandItemClick = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     docIndex: number
@@ -294,6 +306,7 @@ const DocumentListPage = () => {
     openDoc(docIndex);
   };
 
+  // Function to set initial user
   const getInitials = (fullName: string) => {
     const nameParts = fullName.split(" ");
     if (nameParts.length < 2) return "SW";
@@ -301,6 +314,7 @@ const DocumentListPage = () => {
     setInitial(initials.toUpperCase());
   };
 
+  // Function to handle avatar changing
   const handleAvatarChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     onChange: (file: File | null) => void
@@ -318,6 +332,7 @@ const DocumentListPage = () => {
     }
   };
 
+  // Function to handle sign out
   const handleSignOut = async () => {
     await signOutUser();
     console.log("user signed out!");
@@ -327,6 +342,7 @@ const DocumentListPage = () => {
     router.replace("/");
   };
 
+  // Function to submit user data changing
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const formData = {
       fullname: fullname || data.fullname,
@@ -358,6 +374,7 @@ const DocumentListPage = () => {
   }
 
   // useEffect
+  // Handle event listener for the document search container
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -369,6 +386,7 @@ const DocumentListPage = () => {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  // Handle decision if the user is loged or not, and get or create user data on database
   useEffect(() => {
     const user = getUserDataFromCookies();
     console.log("useEffect-user: ", user);
@@ -406,6 +424,7 @@ const DocumentListPage = () => {
     }
   }, []);
 
+  // Handle default value in input form user data
   useEffect(() => {
     if (userData) {
       form.reset({
@@ -425,6 +444,7 @@ const DocumentListPage = () => {
   useEffect(() => {
     console.log("isDialogOpen: ", isDialogOpen);
   }, [isDialogOpen]);
+
   useEffect(() => {
     console.log("docList: ", docList);
   }, [docList]);
@@ -621,7 +641,11 @@ const DocumentListPage = () => {
                     rel="noopener noreferrer"
                     onClick={() => openDoc(index)}
                   >
-                    <CardHeader className="flex items-center justify-center h-[78%]">
+                    <CardHeader className="flex items-center justify-center w-full h-[78%]">
+                      {/* <Image
+                        src={item.thumbnail.toString()}
+                        alt="document thumbnail"
+                      /> */}
                       <CardTitle>Preview doc</CardTitle>
                     </CardHeader>
                   </Link>

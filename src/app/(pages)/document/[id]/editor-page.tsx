@@ -34,11 +34,12 @@ import { SatelliteDish } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { getUserDataFromCookies } from "@/utils/authentication";
-import { takePreviewDoc } from "@/utils/preview-doc";
+import { takeScreenshot } from "@/utils/preview-doc";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { io, Socket } from "socket.io-client";
 import { getCollaborators } from "@/utils/collaboration";
+import html2canvas from "html2canvas";
 
 const SAVE_INTERVAL_MS = 2000;
 const TOOLBAR_OPTIONS = [
@@ -98,15 +99,55 @@ const EditorPage = () => {
     );
   };
 
-  const takePreviewDocImage = async (url: string) => {
+  // Function to save screenshot to database
+  const takeDocScreenshot = async (docId: string, image: string) => {
     try {
-      const result = await takePreviewDoc(url);
+      const result = await takeScreenshot(docId, image);
       console.log("result: ", result);
     } catch (error) {
-      console.error("Error fetching user data: ", error);
+      console.error("Error saving thumbnail result: ", error);
     }
   };
 
+  // Function to take a screenshot of Quill editor and convert it to canvas
+  const captureQuillToCanvas = async () => {
+    if (!quill) return;
+
+    // Get the quill editor DOM element
+    const quillElement: any = document.querySelector(".ql-editor");
+
+    if (quillElement) {
+      try {
+        // Use html2canvas to capture the content of the quill editor
+        const canvas = await html2canvas(quillElement, {
+          scale: 2, // Optional: increases image resolution
+          useCORS: true, // If you're loading images from external sources
+          backgroundColor: null, // Ensures transparent background if needed
+        });
+
+        // Convert the canvas to data URL (base64) or image for further use
+        const imgDataUrl = canvas.toDataURL("image/png");
+        console.log(imgDataUrl); // This is the base64 image URL
+        takeDocScreenshot(documentId!, imgDataUrl);
+
+        // Optionally, you can render the image on the page, upload it, or save it
+        // document.querySelector("#thumbnail").src = imgDataUrl; // Example of rendering the thumbnail
+      } catch (error) {
+        console.error("Error capturing Quill content to canvas:", error);
+      }
+    }
+  };
+
+  // const takePreviewDocImage = async (url: string) => {
+  //   try {
+  //     const result = await takePreviewDoc(url);
+  //     console.log("result: ", result);
+  //   } catch (error) {
+  //     console.error("Error fetching user data: ", error);
+  //   }
+  // };
+
+  // Function to get collaborator list right now
   const getCollaboratorList = async (list: TSocketUser[]) => {
     try {
       const result = await getCollaborators(list);
@@ -117,6 +158,7 @@ const EditorPage = () => {
     }
   };
 
+  // Function to show and hide toolbar based on user's condition
   function updateToolbar(signedState: boolean) {
     if (quill) {
       const toolbarModule = quill.getModule("toolbar");
@@ -130,6 +172,7 @@ const EditorPage = () => {
     }
   }
 
+  // Function to get initial user
   const getInitials = (fullName: string) => {
     const nameParts = fullName.split(" ");
     if (nameParts.length < 2) return "SW";
@@ -138,8 +181,13 @@ const EditorPage = () => {
   };
 
   // useEffect
+  // Handle user's joining, disconnecting, and sync collaborator list
   useEffect(() => {
-    const s: Socket = io("syncwrite-server.vercel.app");
+    // const s: Socket = io("http://localhost:3000/api/socket", {
+    //   transports: ["websocket"], // Ini akan mencoba langsung menggunakan WebSocket
+    // });
+    const url = process.env.NEXT_PUBLIC_SERVER_ROUTE;
+    const s: Socket = io(url!);
     // const socket = io("https://your-server-domain.com", {
     //   transports: ["websocket"],
     //   withCredentials: true,
@@ -197,36 +245,35 @@ const EditorPage = () => {
   //   }
   // }, [socket]);
 
+  // Update collaborator list
   useEffect(() => {
     console.log("users now: ", users);
     getCollaboratorList(users);
   }, [users]);
 
+  // Show collaborator list on console
   useEffect(() => {
     console.log("collaborators now: ", collaborators);
   }, [collaborators]);
 
+  // Load document and save thumbnail
   useEffect(() => {
     if (socket == null || quill == null) return;
 
     const user = getUserDataFromCookies();
     socket.once("load-document", (document) => {
-      // console.log(document);
       quill.setContents(document.data);
       setFileName(document.fileName);
-      // setTimeout(() => {
-      //   const targetUrl = `http://localhost:3000${pathname}`;
-      //   takePreviewDocImage(targetUrl);
-      // }, 3000);
 
       if (user && windowWidth > 900) {
         quill.enable();
       } else {
         quill.disable();
       }
+
+      captureQuillToCanvas();
     });
-    // const targetUrl = `http://localhost:3000${pathname}`;
-    // takePreviewDocImage(targetUrl);
+
     if (user) {
       socket.emit("get-document", user.uid, documentId);
     } else {
@@ -234,6 +281,7 @@ const EditorPage = () => {
     }
   }, [socket, quill, documentId]);
 
+  // Save document changes
   useEffect(() => {
     if (socket == null || quill == null) return;
 
@@ -256,6 +304,7 @@ const EditorPage = () => {
     };
   }, [socket, quill]);
 
+  // Receive changes and emit to every user in the room
   useEffect(() => {
     if (socket == null || quill == null) return;
 
@@ -269,6 +318,7 @@ const EditorPage = () => {
     };
   }, [socket, quill]);
 
+  // Send changes to every user
   useEffect(() => {
     if (socket == null || quill == null) return;
 
@@ -283,6 +333,7 @@ const EditorPage = () => {
     };
   }, [socket, quill]);
 
+  // Create Quill container
   const wrapperRef = useCallback((wrapper: HTMLDivElement | null) => {
     if (wrapper == null) return;
 
@@ -301,18 +352,8 @@ const EditorPage = () => {
   }, []);
 
   // useEffect(() => {
-  //   if (quill) {
-  //     setTimeout(() => {
-  //       const targetUrl = `http://localhost:3000${pathname}`;
-  //       if (
-  //         quill.getContents().ops.length > 1 ||
-  //         quill.getContents().ops.length === 1
-  //       ) {
-  //         takePreviewDocImage(targetUrl);
-  //       } else {
-  //         console.log("Quill has no content.");
-  //       }
-  //     }, 5000);
+  //   if (quill && quill.getContents().ops.length > 0) {
+  //     captureQuillToCanvas();
   //   }
   // }, [quill]);
 
@@ -329,6 +370,7 @@ const EditorPage = () => {
     }
   }, [hasSigned, quill, windowWidth]);
 
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -341,6 +383,7 @@ const EditorPage = () => {
     };
   }, []);
 
+  // Handle decision if the user is loged or not
   useEffect(() => {
     const user = getUserDataFromCookies();
     if (!user) {

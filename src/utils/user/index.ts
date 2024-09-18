@@ -1,3 +1,5 @@
+const baseRoute = process.env.NEXT_PUBLIC_SERVER_ROUTE;
+
 export const getOrCreateUser = async (
   uid?: string,
   email?: string | null,
@@ -6,21 +8,18 @@ export const getOrCreateUser = async (
 ) => {
   console.log("fetch get-create-user (id): ", uid);
   try {
-    const response = await fetch(
-      "https://syncwrite-server.vercel.app/api/get-or-create-user",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: uid,
-          email: email,
-          displayName: displayName,
-          avatar: avatar,
-        }),
-      }
-    );
+    const response = await fetch(`${baseRoute}/api/get-or-create-user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: uid,
+        email: email,
+        displayName: displayName,
+        avatar: avatar,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch user");
@@ -41,21 +40,18 @@ export const updateProfileUser = async (
   avatar?: string | null
 ) => {
   try {
-    const response = await fetch(
-      "https://syncwrite-server.vercel.app/api/update-profile",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: uid,
-          email: email,
-          displayName: displayName,
-          avatar: avatar,
-        }),
-      }
-    );
+    const response = await fetch(`${baseRoute}/api/update-profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: uid,
+        email: email,
+        displayName: displayName,
+        avatar: avatar,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to update user");
@@ -71,18 +67,15 @@ export const updateProfileUser = async (
 
 export const getOrCreateDocList = async (uid?: string) => {
   try {
-    const response = await fetch(
-      "https://syncwrite-server.vercel.app/api/get-or-create-doclist",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: uid,
-        }),
-      }
-    );
+    const response = await fetch(`${baseRoute}/api/get-or-create-doclist`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: uid,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch document list");
@@ -104,19 +97,16 @@ type TDocItem = {
 };
 export const updateDocList = async (id?: string, list?: TDocItem[]) => {
   try {
-    const response = await fetch(
-      "https://syncwrite-server.vercel.app/api/update-doclist",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          list: list,
-        }),
-      }
-    );
+    const response = await fetch(`${baseRoute}/api/update-doclist`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        list: list,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to update document list");
@@ -132,19 +122,16 @@ export const updateDocList = async (id?: string, list?: TDocItem[]) => {
 
 export const updateDocName = async (id?: string, fileName?: string) => {
   try {
-    const response = await fetch(
-      "https://syncwrite-server.vercel.app/api/change-filename",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          fileName: fileName,
-        }),
-      }
-    );
+    const response = await fetch(`${baseRoute}/api/change-filename`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        fileName: fileName,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to update document name");
@@ -160,13 +147,10 @@ export const updateDocName = async (id?: string, fileName?: string) => {
 
 export const deleteDoc = async (id: string) => {
   try {
-    const response = await fetch(
-      `https://syncwrite-server.vercel.app/api/delete-doc/${id}`,
-      {
-        method: "DELETE",
-        headers: {},
-      }
-    );
+    const response = await fetch(`${baseRoute}/api/delete-doc/${id}`, {
+      method: "DELETE",
+      headers: {},
+    });
 
     if (!response.ok) {
       throw new Error("Failed to delete document");
